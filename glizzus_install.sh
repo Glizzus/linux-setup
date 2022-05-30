@@ -22,7 +22,6 @@ mkdir -p $home/.jetbrains
 python3 - $home << END
 from urllib.request import urlopen
 import sys
-
 url = 'https://download.jetbrains.com/toolbox/' \
       'jetbrains-toolbox-1.24.12080.tar.gz'
 opened_url = urlopen(url)
@@ -86,4 +85,5 @@ touch $home/.bash_aliases
 
 echo "alias editvim='vim ~/.config/nvim/init.vim" \
 	>> $home/.bash_aliases
-
+	
+echo "done"
