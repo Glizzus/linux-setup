@@ -1,7 +1,5 @@
 #!/bin/sh
 
-home=$(getent passwd $SUDO_USER | cut -d: -f6)
-echo $home
 
 # Installs applications ----------------------------------
 
@@ -13,13 +11,13 @@ LIST_OF_APPS="neovim
 			  lynx
 			  git"
 
-apt install -y $LIST_OF_APPS
+sudo apt install -y $LIST_OF_APPS
 wait $!
 
 # Installs JetBrains toolbox ----------------------------
 
-mkdir -p $home/.jetbrains
-python3 - $home << END
+mkdir -p $HOME/.jetbrains
+python3 - $HOME << END
 from urllib.request import urlopen
 import sys
 url = 'https://download.jetbrains.com/toolbox/' \
@@ -34,17 +32,18 @@ print('JetBrains toolbox tar downloaded')
 END
 
 echo "Extracting tar"
-tar -xzf $home/.jetbrains/toolbox.tar.gz -C $home/.jetbrains
-rm $home/.jetbrains/toolbox.tar.gz
-mv $home/.jetbrains/*/* $home/.jetbrains
-rm -r $home/.jetbrains/*/
+tar -xzf $HOME/.jetbrains/toolbox.tar.gz -C $HOME/.jetbrains
+rm $HOME/.jetbrains/toolbox.tar.gz
+mv $HOME/.jetbrains/*/* $HOME/.jetbrains
+rm -r $HOME/.jetbrains/*/
 echo "JetBrains toolbox installed"
 
 # Configures neovim -------------------------------------
 
 echo "Configuring Neovim"
 
-touch $home/.config/nvim/init.vim
+mkdir -p $HOME/.config/nvim
+touch $HOME/.config/nvim/init.vim
 echo "set nocompatible
 set showmatch
 set ignorecase
@@ -65,25 +64,29 @@ set clipboard=unnamedplus
 set ttyfast
 set filetype
 filetype plugin on" \
-	>> $home/.config/nvim/init.vim
+	>> $HOME/.config/nvim/init.vim
 
-mkdir -p $home/.config/nvim/ftplugin
+echo "Adding file type plugins"
 
-FILE_TYPE_PLUGINS=("python", "c", "cpp")
+mkdir -p $HOME/.config/nvim/ftplugin
+
+FILE_TYPE_PLUGINS=("python" "c" "cpp")
 for plugin in ${FILE_TYPE_PLUGINS[@]}; do
-	touch $home/.config/nvim/ftplugin/$plugin.vim
+	touch $HOME/.config/nvim/ftplugin/$plugin.vim
+	echo "config file for $plugin created"
 done
 
 echo "setlocal expandtab
 setlocal formatoptions=croql
 nnoremap <buffer> <F8> :w <CR> :!python3 % <CR>" \
-	>> $home/.config/nvim/ftplugin/python.vim
+	>> $HOME/.config/nvim/ftplugin/python.vim
 
 # Configures bash aliases -----------------------------------------
 
-touch $home/.bash_aliases
+echo "configuring bash aliases"
+touch $HOME/.bash_aliases
 
 echo "alias editvim='vim ~/.config/nvim/init.vim" \
-	>> $home/.bash_aliases
-	
+	>> $HOME/.bash_aliases
+
 echo "done"
