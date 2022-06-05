@@ -6,6 +6,7 @@ install_applications() {
     LIST_OF_APPS="neovim
                   python3
                   python3-pip
+                  python3.8-venv
                   tmux
                   tree
                   lynx
@@ -135,9 +136,9 @@ configure_aliases() {
 
     echo \
 "alias editvim='vim ~/.config/nvim/init.vim'
-alias makevenv='python3 -m env ./venv'
+alias makevenv='python3 -m venv ./venv'
 alias startvenv='. ./venv/bin/activate'
-alias toolbox='~/.jetbrains/./jetbrains-toolbox" \
+alias toolbox='~/.jetbrains/./jetbrains-toolbox'" \
         >> $HOME/.bash_aliases
 }
 
