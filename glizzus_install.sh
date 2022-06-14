@@ -116,14 +116,21 @@ configure_tmux() {
 "unbind-key C-b
 set-option -g prefix C-a
 bind-key C-a send-prefix
-
 set -g default-terminal screen-256color
-
 set-window-option -g pane-border-style fg=colour11,bg=colour234
 set-window-option -g pane-active-border-style fg=colour118,bg=colour234
 set-window-option -g window-style fg=white,bg=colour236
 set-window-option -g window-active-style fg=white,bg=colour235" \
     >> $HOME/.tmux.conf
+
+    touch $HOME/.tmuxsetup.sh
+    echo \
+"tmux new -s sesh -d
+tmux split-window -h
+tmux split-window -v
+tmux send-keys -t sesh.0 'vim +\"e.\"' C-m
+tmux attach -t sesh" \
+    >> $HOME/.tmuxsetup.sh
 
     echo "Tmux configured"
 }
@@ -138,7 +145,8 @@ configure_aliases() {
 "alias editvim='vim ~/.config/nvim/init.vim'
 alias makevenv='python3 -m venv ./venv'
 alias startvenv='. ./venv/bin/activate'
-alias toolbox='~/.jetbrains/./jetbrains-toolbox'" \
+alias toolbox='~/.jetbrains/./jetbrains-toolbox'
+alias startdev='bash ~/.tmuxsetup.sh'" \
         >> $HOME/.bash_aliases
 }
 
