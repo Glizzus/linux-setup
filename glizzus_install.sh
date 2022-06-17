@@ -10,6 +10,7 @@ install_applications() {
                   tmux
                   tree
                   w3m
+                  w3m-img
                   git
                   curl
                   openjdk-17-jdk-headless"
