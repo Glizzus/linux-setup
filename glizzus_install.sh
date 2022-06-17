@@ -9,12 +9,10 @@ install_applications() {
                   python3.8-venv
                   tmux
                   tree
-                  lynx
+                  w3m
                   git
                   curl
-                  openjdk-17-jdk-headless
-                  nodejs
-                  scala"
+                  openjdk-17-jdk-headless"
 
     sudo apt install -y $LIST_OF_APPS
     wait $!
