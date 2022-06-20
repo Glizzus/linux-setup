@@ -3,20 +3,19 @@
 
 install_applications() {
     
-    LIST_OF_APPS="neovim
-                  python3
-                  python3-pip
-                  python3.8-venv
-                  tmux
-                  tree
-                  w3m
-                  w3m-img
-                  git
-                  curl
-                  openjdk-17-jdk-headless"
+    LIST_OF_APPS=("neovim"
+                  "python3"
+                  "python3-pip"
+                  "tmux"
+                  "tree"
+                  "lynx"
+                  "git"
+                  "curl"
+                  "opendjdk-18-jdk-headless")
 
-    sudo apt install -y $LIST_OF_APPS
-    wait $!
+    for app in ${LIST_OF_APPS[@]}; do
+        sudo apt install -y $app
+    done
 }
 
 
@@ -152,6 +151,7 @@ alias startdev='bash ~/.tmuxsetup.sh'" \
 
 main() {
     install_applications
+    wait $!
     get_jetbrains_toolbox
     change_background
     configure_neovim
