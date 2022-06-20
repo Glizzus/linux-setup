@@ -13,7 +13,8 @@ install_applications() {
                   "git"
                   "curl"
                   "openjdk-18-jdk-headless"
-                  "gh")
+                  "gh"
+                  "fuse")
 
     for app in ${LIST_OF_APPS[@]}; do
         sudo apt install -y $app
