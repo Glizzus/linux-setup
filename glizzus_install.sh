@@ -5,13 +5,15 @@ install_applications() {
     
     LIST_OF_APPS=("neovim"
                   "python3"
+                  "python3.10-venv"
                   "python3-pip"
                   "tmux"
                   "tree"
                   "lynx"
                   "git"
                   "curl"
-                  "opendjdk-18-jdk-headless")
+                  "openjdk-18-jdk-headless"
+                  "gh")
 
     for app in ${LIST_OF_APPS[@]}; do
         sudo apt install -y $app
