@@ -1,12 +1,12 @@
-
-
 install_apt_dependencies() {
-    FUN_STUFF="neofetch sl lolcat"
+    sudo apt update
+    FUN_STUFF="neofetch sl lolcat xwallpaper"
     ALACRITTY_DEPS="cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev"
     APPS="
         git
 	curl	
 	python3
+	parallel
 	${FUN_STUFF}
 	${ALACRITTY_DEPS}
     "
@@ -28,7 +28,7 @@ install_rust() {
 }
 
 install_alacritty() {
-    git clone https://github.com/alacritty/alacritty.git .alacritty
+    git clone https://github.com/alacritty/alacritty.git ~/.alacritty
 
     # Putting this in a function allows us to easily cd into the directory
     # While we configured Alacritty
@@ -60,7 +60,7 @@ install_alacritty() {
 	echo "source $(pwd)/extra/completions/alacritty.bash" >> ~/.bashrc &
     }
 
-    (cd .alacritty && do_alacritty_work)
+    (cd ~/.alacritty && do_alacritty_work)
 }
 
 uncomment_bash_line() {
@@ -152,15 +152,90 @@ install_vs_code() {
     mv /usr/share/pixmaps.{png,svg}
 }
 
+get_ascii_to_image() {
+    url="https://github.com/TheZoraiz/ascii-image-converter/releases/download/v1.12.0/ascii-image-converter_Linux_amd64_64bit.tar.gz"
+    wget $url -O - | tar -xz
+    directory="ascii-image-converter_Linux_amd64_64bit"
+    (cd $directory && sudo mv ascii-image-converter /usr/bin)
+    rm -r $directory
+}
+
+get_background_images() {
+    declare -A images
+    images["sopranos.jpg"]="https://images8.alphacoders.com/676/676146.jpg"
+    images["stardew.jpg"]="https://i.pinimg.com/originals/b2/29/1c/b2291c7633bcfe69cb7b3b7ba0d814ab.jpg"
+    images["babydriver.jpg"]="https://images.alphacoders.com/847/847742.jpg"
+    images["undertaker.jpg"]="https://images4.alphacoders.com/103/1039937.jpg"
+
+    image_names=""
+    image_urls=""
+    
+    for image in "${!images[@]}"
+    do
+	image_names+="${image} "
+	image_urls+="${images[$image]} "
+    done
+    mkdir ~/Pictures/Background
+    (cd ~/Pictures/Background && parallel --link wget -O ::: $image_names ::: $image_urls)
+}
+
+set_xprofile() {
+    lines=(
+        '# Sets the background to a random picture in Background directory on launch'
+	'random_background=$(ls ~/Pictures/Background | shuf -n 1)'
+	'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorVirtual1/workspace0/last-image -s ~/Pictures/Background/$random_background'
+    ) 
+    for line in "${lines[@]}"
+    do
+        echo "$line" >> ~/.xprofile
+    done
+}
+
+set_bash_aliases() {
+    declare -A aliases
+    aliases["vim"]='"nvim"'
+
+    for ali in "${!aliases[@]}"
+    do
+	echo "alias $ali=${aliases[$ali]}" >> ~/.bash_aliases
+    done
+}
+
+
 main() {
 
-    # Apt dependencies should be installed before everything else runs
     install_apt_dependencies
-    install_nvim &
-    (install_rust && install_alacritty && configure_alacritty) &
-    configure_git &
-    install_font &
- 
+
+    rust_and_alacritty() {
+	install_rust
+	install_alacritty
+	configure_alacritty
+    }
+
+    background_configuration() {
+	get_background_images
+	set_xprofile
+    }
+
+    functions=(
+        "install_apt_dependencies"
+	"install_nvim"
+	"rust_and_alacritty"
+	"configure_git"
+	"install_font"
+	"install_vs_code"
+	"get_ascii_to_image"
+	"background_configuration"
+	"set_bash_aliases"
+    )
+    funcstr=""
+    for func in ${functions[@]}
+    do
+        export -f $func
+	funcstr+="$func "
+    done
+    parallel ::: $funcstr
+
     sudo apt autoremove && sudo apt autoclean
 }
 
