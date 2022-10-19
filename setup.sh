@@ -1,6 +1,6 @@
 install_apt_dependencies() {
     sudo apt update
-    FUN_STUFF="neofetch sl lolcat xwallpaper"
+    FUN_STUFF="neofetch sl lolcat"
     ALACRITTY_DEPS="cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev"
     APPS="
         git
