@@ -96,8 +96,6 @@ install_alacritty() {
     sudo rm -r ~/.alacritty
 }
 
-
-
 configure_alacritty() {
     mkdir ~/.config/alacritty
     mkdir ~/.config/alacritty/themes
@@ -193,6 +191,7 @@ get_background_images() {
     images["stardew.jpg"]="https://i.pinimg.com/originals/b2/29/1c/b2291c7633bcfe69cb7b3b7ba0d814ab.jpg"
     images["babydriver.jpg"]="https://images.alphacoders.com/847/847742.jpg"
     images["undertaker.jpg"]="https://images4.alphacoders.com/103/1039937.jpg"
+    images["better_call_saul.jpg"]="https://images2.alphacoders.com/685/685629.jpg"
 
     image_names=""
     image_urls=""
@@ -223,6 +222,10 @@ set_terminal_image_greeting() {
 	''
     )
     echo_lines_to_file lines ~/.bashrc
+}
+
+configure_firefox() {
+    cp /var/lib/snapd/desktop/applications/firefox_firefox.desktop ~/Desktop
 }
 
 set_bash_aliases() {
