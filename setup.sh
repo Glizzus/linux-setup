@@ -17,6 +17,17 @@ uncomment_bash_line() {
     sed "/${line}/s/^#//" -i $file
 }
 
+echo_lines_to_file() {
+    local -n array=$1
+    file=$2
+    for line in "${array[@]}"
+    do
+        echo "$line" >> "$file"
+    done
+}
+
+# ----------------------------------------------------------------------------
+
 install_apt_dependencies() {
     sudo apt update
     FUN_STUFF="neofetch sl lolcat"
@@ -69,14 +80,20 @@ install_alacritty() {
 	    gzip -c extra/alacritty-msg.man | sudo tee /usr/local/share/man/man1/alacritty-msg.1.gz > /dev/null
 	}
 
+	install_bash_completions() {
+	    mkdir ~/.bash_completion
+	    cp extra/completions/alacritty.bash ~/.bash_completion/alacritty
+	    echo "source ~/.bash_completion/alacritty" >> ~/.bashrc
+	}
+
 	# Get Terminfo
-	sudo tic -xe alacritty,alacritty-direct extra/alacritty.info &
-	create_desktop_entry &
-	install_man_page &
-	# Install Bash completions
-	echo "source $(pwd)/extra/completions/alacritty.bash" >> ~/.bashrc &
+	sudo tic -xe alacritty,alacritty-direct extra/alacritty.info
+	create_desktop_entry
+	install_man_page
+	install_bash_completions
     }
     (cd ~/.alacritty && do_alacritty_work)
+    sudo rm -r ~/.alacritty
 }
 
 
@@ -87,13 +104,16 @@ configure_alacritty() {
     touch ~/.config/alacritty/alacritty.yml
     wget https://raw.githubusercontent.com/eendroroy/alacritty-theme/master/themes/horizon-dark.yaml -P ~/.config/alacritty/themes
 
-    add_to_config() {
-        echo $1 >> ~/.config/alacritty/alacritty.yml
-    }
+    lines=(
+        'import: '
+	'  - ~/.config/alacritty/themes/horizon-dark.yaml'
+	''
+	'window: '
+	'  opacity: 0.9'
+    )
+    echo_lines_to_file lines ~/.config/alacritty/alacritty.yml
 
-    add_to_config 'import:'
-    add_to_config '  - ~/.config/alacritty/alacritty.yml'
-    uncomment_bash_line 'force_color_prompt=yes' '~/.bashrc'
+    uncomment_bash_line 'force_color_prompt=yes' ~/.bashrc
     source ~/.bashrc
 }
 
@@ -192,10 +212,17 @@ set_xprofile() {
 	'random_background=$(ls ~/Pictures/Background | shuf -n 1)'
 	'xfconf-query -c xfce4-desktop -p /backdrop/screen0/monitorVirtual1/workspace0/last-image -s ~/Pictures/Background/$random_background'
     ) 
-    for line in "${lines[@]}"
-    do
-        echo "$line" >> ~/.xprofile
-    done
+    echo_lines_to_file lines ~/.xprofile
+}
+
+set_terminal_image_greeting() {
+    lines=(
+        ''
+        'random_picture=$(ls ~/Pictures/Background | shuf -n 1)'
+	'ascii-image-converter -bC ~/Pictures/Background/$random_picture'
+	''
+    )
+    echo_lines_to_file lines ~/.bashrc
 }
 
 set_bash_aliases() {
@@ -213,17 +240,15 @@ main() {
 
     install_apt_dependencies
 
-    install_nvim &
+    (install_nvim && install_vs_code) &
     (install_rust && install_alacritty && configure_alacritty) &
     configure_git &
     install_font &
-    install_vs_code &
     get_ascii_to_image &
-    (get_background_images && set_xprofile) &
-    set_bash_aliases
+    (get_background_images && set_xprofile && set_terminal_image_greeting) &
+    set_bash_aliases &
 
     sudo apt autoremove && sudo apt autoclean
 }
 
-#main
-install_vs_code
+main
