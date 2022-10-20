@@ -1,3 +1,22 @@
+
+# UTILTIES -------------------------------------------------------------------
+
+install_deb() {
+    url=$1
+    # We name the file the url to give it a unique name
+    wget $url -O $url
+    sudo dpkg -i $url
+    rm $url
+}
+
+
+uncomment_bash_line() {
+    line=$1
+    file=$2
+    # Substitute beginning of matched line with nothing if line starts with hashtag
+    sed "/${line}/s/^#//" -i $file
+}
+
 install_apt_dependencies() {
     sudo apt update
     FUN_STUFF="neofetch sl lolcat"
@@ -13,10 +32,9 @@ install_apt_dependencies() {
     sudo apt install -y $APPS
 }
 
+
 install_nvim() {
-    wget https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.deb
-    sudo dpkg -i nvim-linux64.deb
-    rm nvim-linux64.deb
+    install_deb https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.deb
 }
 
 install_rust() {
@@ -59,17 +77,10 @@ install_alacritty() {
 	# Install Bash completions
 	echo "source $(pwd)/extra/completions/alacritty.bash" >> ~/.bashrc &
     }
-
     (cd ~/.alacritty && do_alacritty_work)
 }
 
-uncomment_bash_line() {
-    line=$1
-    file=$2
-    # Substitute beginning of matched line with nothing if
-    # the line starts with a hashtag
-    sed "/${line}/s/^#//" -i $file
-}
+
 
 configure_alacritty() {
     mkdir ~/.config/alacritty
@@ -80,6 +91,7 @@ configure_alacritty() {
     add_to_config() {
         echo $1 >> ~/.config/alacritty/alacritty.yml
     }
+
     add_to_config 'import:'
     add_to_config '  - ~/.config/alacritty/alacritty.yml'
     uncomment_bash_line 'force_color_prompt=yes' '~/.bashrc'
@@ -107,20 +119,17 @@ configure_git() {
     #        foo = bar
     add_to_config() {
 
-	# We get the name because associative arrays
-	# decay into their name when passed as arguments
+	# We get the name because associative arrays decay into their name when passed as arguments
 	config_category=$1
 
-	# By getting a name reference, we get our associative
-	# array back as it used to be
+	# By getting a name reference, we get our associative array back as it used to be
 	local -n map=$1
 
 	echo "[${config_category}]" >> $config_file
 	EIGHT_SPACES="        "
-	for i in "${!map[@]}"
+	for key in "${!map[@]}"
 	do
-	    key=$i	
-	    value="${map[$i]}"
+	    value="${map[$key]}"
 	    echo "${EIGHT_SPACES}${key} = ${value}" >> $config_file
 	done
     }
@@ -144,9 +153,7 @@ install_font() {
 }
 
 install_vs_code() {
-    wget "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" -o code.deb
-    sudo dpkg -i code.deb
-    rm code.deb
+    install_deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
     cp /usr/share/applications/code.desktop ~/Desktop
     chmod +x ~/Desktop/code.desktop
     mv /usr/share/pixmaps.{png,svg}
@@ -206,35 +213,14 @@ main() {
 
     install_apt_dependencies
 
-    rust_and_alacritty() {
-	install_rust
-	install_alacritty
-	configure_alacritty
-    }
-
-    background_configuration() {
-	get_background_images
-	set_xprofile
-    }
-
-    functions=(
-        "install_apt_dependencies"
-	"install_nvim"
-	"rust_and_alacritty"
-	"configure_git"
-	"install_font"
-	"install_vs_code"
-	"get_ascii_to_image"
-	"background_configuration"
-	"set_bash_aliases"
-    )
-    funcstr=""
-    for func in ${functions[@]}
-    do
-        export -f $func
-	funcstr+="$func "
-    done
-    parallel ::: $funcstr
+    install_nvim &
+    (install_rust && install_alacritty && configure_alacritty) &
+    configure_git &
+    install_font &
+    install_vs_code &
+    get_ascii_to_image &
+    (get_background_images && set_xprofile) &
+    set_bash_aliases
 
     sudo apt autoremove && sudo apt autoclean
 }
