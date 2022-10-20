@@ -3,12 +3,12 @@
 
 install_deb() {
     url=$1
+    deb_name=$2
     # We name the file the url to give it a unique name
-    wget $url -O $url
-    sudo dpkg -i $url
-    rm $url
+    wget "${url}" -O $deb_name
+    sudo dpkg -i $deb_name
+    rm $deb_name
 }
-
 
 uncomment_bash_line() {
     line=$1
@@ -32,9 +32,8 @@ install_apt_dependencies() {
     sudo apt install -y $APPS
 }
 
-
 install_nvim() {
-    install_deb https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.deb
+    install_deb https://github.com/neovim/neovim/releases/download/nightly/nvim-linux64.deb nvim.deb
 }
 
 install_rust() {
@@ -153,10 +152,11 @@ install_font() {
 }
 
 install_vs_code() {
-    install_deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64"
+    install_deb "https://code.visualstudio.com/sha/download?build=stable&os=linux-deb-x64" code.deb
     cp /usr/share/applications/code.desktop ~/Desktop
     chmod +x ~/Desktop/code.desktop
-    mv /usr/share/pixmaps.{png,svg}
+    sudo mv /usr/share/pixmaps/{'com.visualstudio.code.png',code.svg}
+    desktop-file-edit ~/Desktop/code.desktop --set-icon="code"
 }
 
 get_ascii_to_image() {
@@ -225,4 +225,5 @@ main() {
     sudo apt autoremove && sudo apt autoclean
 }
 
-main
+#main
+install_vs_code
