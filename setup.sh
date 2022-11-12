@@ -274,6 +274,7 @@ main() {
     install_font &
     get_ascii_to_image &
     (get_background_images && set_xprofile && set_terminal_image_greeting) &
+    configure_firefox &
     set_bash_aliases &
 
     sudo apt autoremove && sudo apt autoclean
