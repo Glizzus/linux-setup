@@ -29,7 +29,7 @@ echo_lines_to_file() {
 # ----------------------------------------------------------------------------
 
 install_apt_dependencies() {
-    sudo apt update
+    sudo apt-get update
     FUN_STUFF="neofetch sl lolcat"
     ALACRITTY_DEPS="cmake pkg-config libfreetype6-dev libfontconfig1-dev libxcb-xfixes0-dev libxkbcommon-dev"
     DOCKER_REQS="ca-certificates gnupg lsb-release"
@@ -43,7 +43,7 @@ install_apt_dependencies() {
 	${FUN_STUFF}
 	${ALACRITTY_DEPS}
     "
-    sudo apt install -y $APPS
+    sudo apt-get install -y $APPS
 }
 
 install_docker() {
@@ -55,7 +55,7 @@ install_docker() {
     $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
 
     sudo apt-get update
-    sudo apt-get install docker-ce docker-ce-cli containerd.io docker-compose-plugin
+    sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
 }
 
 install_nvim() {
